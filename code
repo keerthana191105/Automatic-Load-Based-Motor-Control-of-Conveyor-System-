@@ -1,0 +1,47 @@
+#define PIR_PIN 13
+#define BUZZER 14
+
+bool systemArmed = false;
+
+void setup() {
+  pinMode(PIR_PIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  Serial.begin(115200);
+
+  Serial.println("Enter 1 to ARM system");
+  Serial.println("Enter 0 to DISARM system");
+}
+
+void loop() {
+
+  // -------- SERIAL CONTROL --------
+  if (Serial.available()) {
+    char input = Serial.read();
+
+    if (input == '1') {
+      systemArmed = true;
+      Serial.println("System ARMED");
+    }
+    else if (input == '0') {
+      systemArmed = false;
+      Serial.println("System DISARMED");
+      digitalWrite(BUZZER, LOW); // ensure buzzer off
+    }
+  }
+
+  // -------- MOTION DETECTION --------
+  if (systemArmed) {
+
+    if (digitalRead(PIR_PIN) == HIGH) {
+
+      Serial.println("Motion detected!");
+
+      digitalWrite(BUZZER, HIGH);
+      delay(3000);
+      digitalWrite(BUZZER, LOW);
+
+      delay(2000); // avoid repeated trigger
+    }
+  }
+}
